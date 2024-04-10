@@ -1,0 +1,167 @@
+---
+title: "Relatório Ajuste do Modelo do Projeto das Flores"
+author: "Fernando"
+date: "2024-04-10"
+output: powerpoint_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  error = FALSE,
+  warning = FALSE)
+
+library(tidyverse)
+
+```
+
+## Dados
+
+Neste relatório vamos analisar o banco de dados `iris` e ao lado temos um sumário do banco
+
+```{r sumario}
+
+tibble(
+  numero_de_linhas = nrow(iris),
+  numero_de_colunas = ncol(iris)
+) |> 
+  knitr::kable()
+
+```
+
+```{r, eval=FALSE}
+library(GGally)
+
+# rascunho
+
+ggpairs(iris)
+```
+
+## Análise descritiva
+
+- O gráfico ao lado mostra o cruzamento 2 a 2 de várias variáveis da base de dados
+
+- Na coluna da direita é possível notar que as variáveis Sepal.Length, Petal.Length e Petal.Width possuem medianas diferentes dentro dos grupos
+
+- Além disso no gráfico de cruzamento entre Petal.Length e Petal.Width podemos ver que os grupos ficam separados espacialmente, o que torna adequado usar um modelo como KNN com distância euclidiana, que busca grupos de pontos próximos
+
+```{r}
+library(GGally)
+
+ggpairs(iris, mapping = aes(color = Species)) +
+  theme_bw(8)
+```
+
+```{r}
+library(skimr)
+
+skim(iris)
+```
+
+```{r, include=FALSE}
+library(tidymodels)
+
+# filosofia: "modelos" na verdade são workflows
+
+# workflow é modelo + pré-processamento
+
+# pré-processamento é, por exemplo, padronizar variáveis, excluir missing
+# imputar variáveis faltantes etc etc
+
+# modelo é efetivamente as fórmulas que a gente usa. equações lineares,
+# nao lineares, árvores, knn etc
+
+# no final um código que ajusta um modelo vai ser mais ou menos assim
+# 0. separar a base de treino da base de teste
+# 1. primeiro fazemos a receita
+# receita <- codigo
+# 2. juntamos a receita com o modelo num workflow
+# modelo <- knn
+
+# workflow <- create_workflow(codigo, knn)
+
+# 3. escolhemos o melhor hiperparametro para o workflow via validação cruzada
+
+# 4. escolhido o hiperparametro final, calcular os erros de teste e por fim ajustar o modelo final usando a base inteira
+```
+
+```{r, include=FALSE}
+set.seed(20240310)
+
+split_inicial <- initial_split(iris)
+
+teste <- training(split_inicial)
+treino <- testing(split_inicial)
+```
+
+```{r, include=FALSE}
+# toda receita é um passo a passo em cima dos dados
+receita <- recipe(Species ~ ., data = treino) |> 
+  step_normalize(all_numeric_predictors())
+
+especificacao_modelo <- nearest_neighbor(neighbors = tune()) |> 
+  set_mode("classification") |> 
+  set_engine("kknn")
+
+meu_workflow <- workflow(
+  preprocessor = receita,
+  spec = especificacao_modelo
+)
+```
+
+```{r, include=FALSE}
+
+reamostras <- vfold_cv(treino, v = 15)
+
+resultado_cv <- tune_grid(
+  meu_workflow,
+  reamostras, grid = 40
+)
+
+```
+
+# Gráfico de seleção do número de vizinhos
+
+```{r}
+autoplot(resultado_cv)
+```
+
+```{r, include = FALSE}
+
+set.seed(20240410)
+
+select_best(resultado_cv, "accuracy")
+
+modelo_com_vizinhos_ajustados <- meu_workflow |> 
+           finalize_workflow(
+             select_best(resultado_cv, "accuracy")
+           )
+ultimo_ajuste <- last_fit(modelo_com_vizinhos_ajustados, split = split_inicial)
+
+```
+
+## Métricas finais do modelo
+
+Na tabela ao lado temos as métricas finais do modelo
+
+```{r}
+collect_metrics(ultimo_ajuste) |> 
+  knitr::kable()
+```
+
+```{r}
+especificacao_final <- nearest_neighbor(neighbors = 4) |> 
+  set_mode("classification") |> 
+  set_engine("kknn")
+
+modelo_vigente <- workflow(
+  preprocessor = receita,
+  spec = especificacao_final
+) |> 
+  fit(iris)
+
+# exemplo:
+# predict(modelo_vigente, new_data = tibble(Sepal.Width = 1, Sepal.Length = 2, Petal.Width = 1, Petal.Length = 2))
+```
+
