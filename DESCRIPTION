@@ -13,6 +13,7 @@ URL: https://github.com/curso-r/projetosFlores
 BugReports: https://github.com/curso-r/projetosFlores/issues
 Imports: 
     dplyr (>= 1.0.0),
+    plumber,
     tidymodels
 Depends: 
     R (>= 2.10)
