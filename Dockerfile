@@ -8,7 +8,7 @@ RUN apt-get update -qq && apt-get install -y \
   libxml2-dev
 
 COPY ./ /tmp/api/
-
+WORKDIR /tmp/api/
 RUN R -e "install.packages('plumber')"
 RUN R -e "install.packages('tidymodels')"
 RUN R -e "install.packages('devtools')"
