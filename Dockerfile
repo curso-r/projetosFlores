@@ -15,7 +15,4 @@ RUN R -e "install.packages('devtools')"
 
 EXPOSE 80
 
-CMD ["Rscript", "-e",
-      "devtools::load_all();
-       roda_api()"
-     ]
+CMD ["Rscript", "-e", "devtools::load_all();roda_api();"]
