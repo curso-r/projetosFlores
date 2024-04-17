@@ -7,7 +7,7 @@ RUN apt-get update -qq && apt-get install -y \
   libsodium-dev \
   libxml2-dev
 
-COPY ./ /tmp/api/
+RUN git clone https://github.com/curso-r/projetosFlores /tmp/api/
 WORKDIR /tmp/api/
 RUN R -e "install.packages('plumber')"
 RUN R -e "install.packages('tidymodels')"
