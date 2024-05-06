@@ -11,6 +11,7 @@ RUN git clone https://github.com/curso-r/projetosFlores /tmp/api/
 WORKDIR /tmp/api/
 RUN R -e "install.packages('tidymodels')"
 RUN R -e "install.packages('devtools')"
+RUN R -e "install.packages('kknn')"
 
 EXPOSE 80
 
