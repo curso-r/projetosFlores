@@ -1,4 +1,4 @@
-FROM rocker/plumber
+FROM rstudio/plumber
 
 RUN apt-get update -qq && apt-get install -y \
   git-core \
