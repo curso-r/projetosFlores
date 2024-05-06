@@ -7,6 +7,8 @@ RUN apt-get update -qq && apt-get install -y \
   libssl-dev \
   curl \
   libsodium-dev \
+  libxml2-dev \
+  libglpk-dev \
   libxml2-dev
 
 EXPOSE 80
