@@ -12,7 +12,7 @@ RUN apt-get update -qq && apt-get install -y \
 EXPOSE 80
 
 RUN git clone https://github.com/curso-r/projetosFlores /tmp/api/
-RUN R -e "install.packages('tidymodels')"
-RUN R -e "install.packages('devtools')"
-RUN R -e "install.packages('kknn')"
-RUN R -e "devtools::load_all();roda_api();"
+RUN Rscript -e "install.packages('tidymodels')"
+RUN Rscript -e "install.packages('devtools')"
+RUN Rscript -e "install.packages('kknn')"
+RUN Rscript -e "devtools::load_all();roda_api();"
