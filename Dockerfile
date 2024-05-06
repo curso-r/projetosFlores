@@ -14,4 +14,4 @@ RUN R -e "install.packages('devtools')"
 
 EXPOSE 80
 
-RUN R é "devtools::load_all();roda_api();"
+RUN R -e "devtools::load_all();roda_api();"
