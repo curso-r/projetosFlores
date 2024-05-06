@@ -14,4 +14,4 @@ EXPOSE 80
 RUN git clone https://github.com/curso-r/projetosFlores /tmp/api/
 RUN Rscript -e ".libPaths('/tmp/api/pkgs/');install.packages('tidymodels')"
 RUN Rscript -e ".libPaths('/tmp/api/pkgs/');install.packages('devtools')"
-RUN Rscript -e ".libPaths('/tmp/api/pkgs/');install.packages('kknn');devtools::load_all();roda_api();"
+RUN Rscript -e ".libPaths('/tmp/api/pkgs/');install.packages('kknn');library(knn);"
